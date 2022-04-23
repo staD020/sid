@@ -142,6 +142,14 @@ func (w Word) String() string {
 	return fmt.Sprintf("0x%04x", uint16(w))
 }
 
+func (w Word) LowByte() byte {
+	return byte(w & 0xff)
+}
+
+func (w Word) HighByte() byte {
+	return byte(w >> 8)
+}
+
 func (w LongWord) String() string {
 	return fmt.Sprintf("0x%08x", uint32(w))
 }
