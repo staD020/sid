@@ -67,10 +67,18 @@ func (s *SID) LoadAddress() Word {
 func (s *SID) Bytes() []byte {
 	offset := s.dataOffset()
 	if loadTo := bytesToWord(s.bin[8], s.bin[9]); loadTo == 0 {
-		return s.bin[offset&0xff:]
+		return s.bin[offset:]
 	}
 	buf := []byte{s.bin[8], s.bin[9]}
-	return append(buf, s.bin[offset&0xff:len(s.bin)]...)
+	return append(buf, s.bin[offset:]...)
+}
+
+func (s *SID) RawBytes() []byte {
+	offset := s.dataOffset()
+	if loadTo := bytesToWord(s.bin[8], s.bin[9]); loadTo == 0 {
+		return s.bin[offset+2:]
+	}
+	return s.bin[offset:]
 }
 
 func (s *SID) InitAddress() Word {
