@@ -6,11 +6,10 @@ import (
 	"os"
 )
 
-type SID struct {
-	bin []byte
-}
-
 type (
+	SID struct {
+		bin []byte
+	}
 	Word     uint16
 	Version  uint16
 	LongWord uint32
@@ -19,12 +18,12 @@ type (
 func LoadSID(path string) (*SID, error) {
 	bin, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("os.ReadFile %q failed: %w", path, err)
+		return nil, err
 	}
 	s := &SID{bin: bin}
-	err = s.headerMarkerOK()
+	err = s.Validate()
 	if err != nil {
-		return nil, fmt.Errorf("headerMarkerOK failed: %w", err)
+		return nil, err
 	}
 	return s, nil
 }
@@ -79,6 +78,10 @@ func (s *SID) RawBytes() []byte {
 		return s.bin[offset+2:]
 	}
 	return s.bin[offset:]
+}
+
+func (s *SID) String() string {
+	return fmt.Sprintf("%q by %q - %q", s.Name(), s.Author(), s.Released())
 }
 
 func (s *SID) InitAddress() Word {
