@@ -80,10 +80,6 @@ func (s *SID) RawBytes() []byte {
 	return s.bin[offset:]
 }
 
-func (s *SID) String() string {
-	return fmt.Sprintf("%q by %q - %q", s.Name(), s.Author(), s.Released())
-}
-
 func (s *SID) InitAddress() Word {
 	return bytesToWord(s.bin[0xa], s.bin[0xb])
 }
@@ -124,6 +120,10 @@ func (s *SID) Author() string {
 
 func (s *SID) Released() string {
 	return chopString(string(s.bin[0x56:0x75]))
+}
+
+func (s *SID) String() string {
+	return fmt.Sprintf("%q by %s © %s", s.Name(), s.Author(), s.Released())
 }
 
 func (v Version) String() string {

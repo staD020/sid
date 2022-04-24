@@ -30,6 +30,7 @@ func TestLoadSID(t *testing.T) {
 				"LoadAddress": s.LoadAddress().String(),
 				"InitAddress": s.InitAddress().String(),
 				"PlayAddress": s.PlayAddress().String(),
+				"String":      s.String(),
 			},
 			want: map[string]string{
 				"Name":        "Rivalry (tune 5)",
@@ -41,6 +42,7 @@ func TestLoadSID(t *testing.T) {
 				"LoadAddress": "0x1000",
 				"InitAddress": "0x1000",
 				"PlayAddress": "0x1009",
+				"String":      "\"Rivalry (tune 5)\" by Thomas E. Petersen (Laxity) © 2019 Seniors",
 			},
 		},
 	}
@@ -52,18 +54,6 @@ func TestLoadSID(t *testing.T) {
 			}
 		}
 	}
-
-	/*
-		fmt.Println("name:", s.Name())
-		fmt.Println("author:", s.Author())
-		fmt.Println("released:", s.Released())
-		fmt.Println("version:", s.Version())
-		fmt.Println("speed:", s.Speed())
-		fmt.Println("dataOffset:", s.dataOffset())
-		fmt.Println("LoadAddress:", s.LoadAddress())
-		fmt.Println("InitAddress:", s.InitAddress())
-		fmt.Println("PlayAddress:", s.PlayAddress())
-	*/
 }
 
 func TestBytesToWord(t *testing.T) {
