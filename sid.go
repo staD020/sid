@@ -21,11 +21,7 @@ func LoadSID(path string) (*SID, error) {
 		return nil, err
 	}
 	s := &SID{bin: bin}
-	err = s.Validate()
-	if err != nil {
-		return nil, err
-	}
-	return s, nil
+	return s, s.Validate()
 }
 
 func (s *SID) Validate() error {
@@ -105,7 +101,7 @@ func chopString(in string) (out string) {
 		if byte(c) == 0 {
 			return out
 		}
-		out = out + string(c)
+		out += string(c)
 	}
 	return out
 }
@@ -123,7 +119,7 @@ func (s *SID) Released() string {
 }
 
 func (s *SID) String() string {
-	return fmt.Sprintf("%q by %s © %s", s.Name(), s.Author(), s.Released())
+	return fmt.Sprintf("%q by %s (c) %s", s.Name(), s.Author(), s.Released())
 }
 
 func (v Version) String() string {
@@ -137,7 +133,7 @@ func (v Version) String() string {
 	case 4:
 		return "PSID V2NG, RSID, 0x0004"
 	default:
-		return "unknown version"
+		return fmt.Sprintf("unknown version %s", Word(v))
 	}
 }
 
@@ -159,12 +155,12 @@ func (w LongWord) String() string {
 
 func (s *SID) headerMarkerOK() error {
 	if s.bin[0] != 'P' && s.bin[0] != 'R' {
-		return fmt.Errorf("first byte incorrect")
+		return fmt.Errorf("incorrect PSID/RSID header marker: first byte incorrect")
 	}
 	const postfix = "SID"
 	for i, c := range postfix {
 		if s.bin[i+1] != byte(c) {
-			return fmt.Errorf("incorrect PSID/RSID header marker")
+			return fmt.Errorf("incorrect PSID/RSID header marker: %q", string(s.bin[0:3]))
 		}
 	}
 	return nil

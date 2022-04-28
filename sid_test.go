@@ -31,6 +31,8 @@ func TestLoadSID(t *testing.T) {
 				"InitAddress": s.InitAddress().String(),
 				"PlayAddress": s.PlayAddress().String(),
 				"String":      s.String(),
+				"Songs":       s.Songs().String(),
+				"StartSong":   s.StartSong().String(),
 			},
 			want: map[string]string{
 				"Name":        "Rivalry (tune 5)",
@@ -42,7 +44,9 @@ func TestLoadSID(t *testing.T) {
 				"LoadAddress": "0x1000",
 				"InitAddress": "0x1000",
 				"PlayAddress": "0x1009",
-				"String":      "\"Rivalry (tune 5)\" by Thomas E. Petersen (Laxity) © 2019 Seniors",
+				"String":      "\"Rivalry (tune 5)\" by Thomas E. Petersen (Laxity) (c) 2019 Seniors",
+				"Songs":       "0x0001",
+				"StartSong":   "0x0001",
 			},
 		},
 	}
@@ -53,6 +57,32 @@ func TestLoadSID(t *testing.T) {
 				t.Errorf("s.%s() mismatch got: %q want: %q", k, got, c.want[k])
 			}
 		}
+	}
+}
+
+func TestBytes(t *testing.T) {
+	s, err := LoadSID(testSID)
+	if err != nil {
+		t.Fatalf("LoadSID %q error: %v", testSID, err)
+	}
+
+	got := len(s.Bytes())
+	want := 4078
+	if got != want {
+		t.Errorf("len(s.Bytes()) mismatch got: %d want: %d", got, want)
+	}
+}
+
+func TestRawBytes(t *testing.T) {
+	s, err := LoadSID(testSID)
+	if err != nil {
+		t.Fatalf("LoadSID %q error: %v", testSID, err)
+	}
+
+	got := len(s.RawBytes())
+	want := 4076
+	if got != want {
+		t.Errorf("len(s.RawBytes()) mismatch got: %d want: %d", got, want)
 	}
 }
 
@@ -73,5 +103,21 @@ func TestBytesToWord(t *testing.T) {
 			t.Errorf("bytesToWord(%d, %d) == %s, want %s", c.in[0], c.in[1], got, c.want)
 		}
 	}
+}
 
+func TestChopString(t *testing.T) {
+	cases := []struct {
+		in, want string
+	}{
+		{"foo", "foo"},
+		{"foo ", "foo "},
+		{"foo\x00", "foo"},
+		{"foo\x00bar", "foo"},
+	}
+	for _, c := range cases {
+		got := chopString(c.in)
+		if got != c.want {
+			t.Errorf("chopString(%s) == %s, want %s", c.in, got, c.want)
+		}
+	}
 }
