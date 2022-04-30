@@ -119,7 +119,8 @@ func (s *SID) Released() string {
 }
 
 func (s *SID) String() string {
-	return fmt.Sprintf("%q by %s (c) %s", s.Name(), s.Author(), s.Released())
+	l := len(s.RawBytes())
+	return fmt.Sprintf("%q by %s (c) %s (%s-%s)", s.Name(), s.Author(), s.Released(), s.LoadAddress(), s.LoadAddress()+Word(uint16(l)))
 }
 
 func (v Version) String() string {
@@ -155,7 +156,7 @@ func (w LongWord) String() string {
 
 func (s *SID) headerMarkerOK() error {
 	if s.bin[0] != 'P' && s.bin[0] != 'R' {
-		return fmt.Errorf("incorrect PSID/RSID header marker: first byte incorrect")
+		return fmt.Errorf("incorrect PSID/RSID header marker: first byte incorrect: %q", string(s.bin[0:3]))
 	}
 	const postfix = "SID"
 	for i, c := range postfix {
