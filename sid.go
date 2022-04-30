@@ -119,8 +119,7 @@ func (s *SID) Released() string {
 }
 
 func (s *SID) String() string {
-	l := len(s.RawBytes())
-	return fmt.Sprintf("%q by %s (c) %s (%s-%s)", s.Name(), s.Author(), s.Released(), s.LoadAddress(), s.LoadAddress()+Word(uint16(l)))
+	return fmt.Sprintf("%q by %s (c) %s (%s-%s)", s.Name(), s.Author(), s.Released(), s.LoadAddress(), s.LoadAddress()+Word(len(s.RawBytes())))
 }
 
 func (v Version) String() string {
