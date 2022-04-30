@@ -20,7 +20,7 @@ func LoadSID(path string) (*SID, error) {
 	if err != nil {
 		return nil, err
 	}
-	s := &SID{bin: bin}
+	s := &SID{bin}
 	return s, s.Validate()
 }
 
@@ -30,7 +30,7 @@ func (s *SID) Validate() error {
 	}
 	v := s.Version()
 	if v < 1 || v > 4 {
-		return fmt.Errorf("incorrect version number 0x%04x: %s", v, v)
+		return fmt.Errorf("incorrect version: %s", v)
 	}
 	o := s.dataOffset()
 	if o != 0x76 && o != 0x7c {

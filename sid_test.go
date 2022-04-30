@@ -44,7 +44,7 @@ func TestLoadSID(t *testing.T) {
 				"LoadAddress": "0x1000",
 				"InitAddress": "0x1000",
 				"PlayAddress": "0x1009",
-				"String":      "\"Rivalry (tune 5)\" by Thomas E. Petersen (Laxity) (c) 2019 Seniors",
+				"String":      `"Rivalry (tune 5)" by Thomas E. Petersen (Laxity) (c) 2019 Seniors`,
 				"Songs":       "0x0001",
 				"StartSong":   "0x0001",
 			},
