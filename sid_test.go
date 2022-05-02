@@ -4,6 +4,7 @@ import (
 	"testing"
 )
 
+//const testSID = "testdata/jasonpage_eighth.sid"
 const testSID = "testdata/Rivalry_tune_5.sid"
 
 func TestLoadSID(t *testing.T) {
@@ -57,6 +58,19 @@ func TestLoadSID(t *testing.T) {
 				t.Errorf("s.%s() mismatch got: %q want: %q", k, got, c.want[k])
 			}
 		}
+	}
+}
+
+func TestSpeed50Herz(t *testing.T) {
+	s, err := LoadSID(testSID)
+	if err != nil {
+		t.Fatalf("LoadSID %q error: %v", testSID, err)
+	}
+
+	got := s.Speed50Herz()
+	want := true
+	if got != want {
+		t.Errorf("s.Speed50Herz() mismatch got: %v want: %v", got, want)
 	}
 }
 

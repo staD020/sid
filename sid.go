@@ -34,7 +34,7 @@ func (s *SID) Validate() error {
 	}
 	o := s.dataOffset()
 	if o != 0x76 && o != 0x7c {
-		return fmt.Errorf("incorrect dataOffset 0x%02x", o)
+		return fmt.Errorf("incorrect dataOffset %s", o)
 	}
 	return nil
 }
@@ -94,6 +94,13 @@ func (s *SID) StartSong() Word {
 
 func (s *SID) Speed() LongWord {
 	return LongWord(s.bin[0x12])<<24 + LongWord(s.bin[0x13])<<16 + LongWord(s.bin[0x14])<<8 + LongWord(s.bin[0x15])
+}
+
+func (s *SID) Speed50Herz() bool {
+	if s.Speed()&1 == 1 {
+		return false
+	}
+	return true
 }
 
 func chopString(in string) (out string) {
