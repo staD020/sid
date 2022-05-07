@@ -97,10 +97,7 @@ func (s *SID) Speed() LongWord {
 }
 
 func (s *SID) Speed50Herz() bool {
-	if s.Speed()&1 == 1 {
-		return false
-	}
-	return true
+	return s.Speed()&1 == 0
 }
 
 func chopString(in string) (out string) {
@@ -139,9 +136,8 @@ func (v Version) String() string {
 		return "PSID V2NG, RSID, 0x0003"
 	case 4:
 		return "PSID V2NG, RSID, 0x0004"
-	default:
-		return fmt.Sprintf("unknown version %s", Word(v))
 	}
+	return fmt.Sprintf("unknown version %s", Word(v))
 }
 
 func (w Word) String() string {
