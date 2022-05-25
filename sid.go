@@ -3,6 +3,7 @@ package sid
 
 import (
 	"fmt"
+	"io"
 	"os"
 )
 
@@ -15,13 +16,22 @@ type (
 	LongWord uint32
 )
 
-func LoadSID(path string) (*SID, error) {
-	bin, err := os.ReadFile(path)
+func New(r io.Reader) (*SID, error) {
+	bin, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}
 	s := &SID{bin}
 	return s, s.Validate()
+}
+
+func LoadSID(path string) (*SID, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	return New(f)
 }
 
 func (s *SID) Validate() error {
