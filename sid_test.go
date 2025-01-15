@@ -1,13 +1,26 @@
 package sid
 
 import (
+	"bytes"
 	"testing"
 )
 
-//const testSID = "testdata/jasonpage_eighth.sid"
+// const testSID = "testdata/jasonpage_eighth.sid"
 const testSID = "testdata/Rivalry_tune_5.sid"
 
+func TestNew(t *testing.T) {
+	t.Parallel()
+	s, err := New(&bytes.Buffer{})
+	if err == nil {
+		t.Errorf("New empty buf succeeded while it should have failed")
+	}
+	if len(s) != 0 {
+		t.Errorf("New empty buf not empty")
+	}
+}
+
 func TestLoadSID(t *testing.T) {
+	t.Parallel()
 	s, err := LoadSID(testSID)
 	if err != nil {
 		t.Fatalf("LoadSID %q error: %v", testSID, err)
@@ -62,6 +75,7 @@ func TestLoadSID(t *testing.T) {
 }
 
 func TestSpeed50Herz(t *testing.T) {
+	t.Parallel()
 	s, err := LoadSID(testSID)
 	if err != nil {
 		t.Fatalf("LoadSID %q error: %v", testSID, err)
@@ -75,6 +89,7 @@ func TestSpeed50Herz(t *testing.T) {
 }
 
 func TestBytes(t *testing.T) {
+	t.Parallel()
 	s, err := LoadSID(testSID)
 	if err != nil {
 		t.Fatalf("LoadSID %q error: %v", testSID, err)
@@ -88,6 +103,7 @@ func TestBytes(t *testing.T) {
 }
 
 func TestRawBytes(t *testing.T) {
+	t.Parallel()
 	s, err := LoadSID(testSID)
 	if err != nil {
 		t.Fatalf("LoadSID %q error: %v", testSID, err)
@@ -101,6 +117,7 @@ func TestRawBytes(t *testing.T) {
 }
 
 func TestBytesToWord(t *testing.T) {
+	t.Parallel()
 	cases := []struct {
 		in   [2]byte
 		want Word
@@ -120,6 +137,7 @@ func TestBytesToWord(t *testing.T) {
 }
 
 func TestChopString(t *testing.T) {
+	t.Parallel()
 	cases := []struct {
 		in, want string
 	}{

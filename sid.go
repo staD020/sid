@@ -8,24 +8,22 @@ import (
 )
 
 type (
-	SID struct {
-		bin []byte
-	}
+	SID      []byte
 	Word     uint16
 	Version  uint16
 	LongWord uint32
 )
 
-func New(r io.Reader) (*SID, error) {
+func New(r io.Reader) (SID, error) {
 	bin, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}
-	s := &SID{bin}
+	s := SID(bin)
 	return s, s.Validate()
 }
 
-func LoadSID(path string) (*SID, error) {
+func LoadSID(path string) (SID, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -34,7 +32,10 @@ func LoadSID(path string) (*SID, error) {
 	return New(f)
 }
 
-func (s *SID) Validate() error {
+func (s SID) Validate() error {
+	if len(s) < 0x7c {
+		return fmt.Errorf("input too short to be a .sid, length: %d bytes", len(s))
+	}
 	if err := s.headerMarkerOK(); err != nil {
 		return err
 	}
@@ -53,60 +54,60 @@ func bytesToWord(bHi, bLo byte) Word {
 	return Word(uint16(bHi)<<8 + uint16(bLo))
 }
 
-func (s *SID) Version() Version {
-	return Version(bytesToWord(s.bin[4], s.bin[5]))
+func (s SID) Version() Version {
+	return Version(bytesToWord(s[4], s[5]))
 }
 
-func (s *SID) dataOffset() Word {
-	return bytesToWord(s.bin[6], s.bin[7])
+func (s SID) dataOffset() Word {
+	return bytesToWord(s[6], s[7])
 }
 
-func (s *SID) LoadAddress() Word {
-	if a := bytesToWord(s.bin[8], s.bin[9]); a > 0 {
+func (s SID) LoadAddress() Word {
+	if a := bytesToWord(s[8], s[9]); a > 0 {
 		return a
 	}
 	offset := s.dataOffset()
-	return bytesToWord(s.bin[offset+1], s.bin[offset])
+	return bytesToWord(s[offset+1], s[offset])
 }
 
-func (s *SID) Bytes() []byte {
+func (s SID) Bytes() []byte {
 	offset := s.dataOffset()
-	if loadTo := bytesToWord(s.bin[8], s.bin[9]); loadTo == 0 {
-		return s.bin[offset:]
+	if loadTo := bytesToWord(s[8], s[9]); loadTo == 0 {
+		return s[offset:]
 	}
-	buf := []byte{s.bin[8], s.bin[9]}
-	return append(buf, s.bin[offset:]...)
+	buf := []byte{s[8], s[9]}
+	return append(buf, s[offset:]...)
 }
 
-func (s *SID) RawBytes() []byte {
+func (s SID) RawBytes() []byte {
 	offset := s.dataOffset()
-	if loadTo := bytesToWord(s.bin[8], s.bin[9]); loadTo == 0 {
-		return s.bin[offset+2:]
+	if loadTo := bytesToWord(s[8], s[9]); loadTo == 0 {
+		return s[offset+2:]
 	}
-	return s.bin[offset:]
+	return s[offset:]
 }
 
-func (s *SID) InitAddress() Word {
-	return bytesToWord(s.bin[0xa], s.bin[0xb])
+func (s SID) InitAddress() Word {
+	return bytesToWord(s[0xa], s[0xb])
 }
 
-func (s *SID) PlayAddress() Word {
-	return bytesToWord(s.bin[0xc], s.bin[0xd])
+func (s SID) PlayAddress() Word {
+	return bytesToWord(s[0xc], s[0xd])
 }
 
-func (s *SID) Songs() Word {
-	return bytesToWord(s.bin[0xe], s.bin[0xf])
+func (s SID) Songs() Word {
+	return bytesToWord(s[0xe], s[0xf])
 }
 
-func (s *SID) StartSong() Word {
-	return bytesToWord(s.bin[0x10], s.bin[0x11])
+func (s SID) StartSong() Word {
+	return bytesToWord(s[0x10], s[0x11])
 }
 
-func (s *SID) Speed() LongWord {
-	return LongWord(s.bin[0x12])<<24 + LongWord(s.bin[0x13])<<16 + LongWord(s.bin[0x14])<<8 + LongWord(s.bin[0x15])
+func (s SID) Speed() LongWord {
+	return LongWord(s[0x12])<<24 + LongWord(s[0x13])<<16 + LongWord(s[0x14])<<8 + LongWord(s[0x15])
 }
 
-func (s *SID) Speed50Herz() bool {
+func (s SID) Speed50Herz() bool {
 	return s.Speed()&1 == 0
 }
 
@@ -120,19 +121,19 @@ func chopString(in string) (out string) {
 	return out
 }
 
-func (s *SID) Name() string {
-	return chopString(string(s.bin[0x16:0x35]))
+func (s SID) Name() string {
+	return chopString(string(s[0x16:0x35]))
 }
 
-func (s *SID) Author() string {
-	return chopString(string(s.bin[0x36:0x55]))
+func (s SID) Author() string {
+	return chopString(string(s[0x36:0x55]))
 }
 
-func (s *SID) Released() string {
-	return chopString(string(s.bin[0x56:0x75]))
+func (s SID) Released() string {
+	return chopString(string(s[0x56:0x75]))
 }
 
-func (s *SID) String() string {
+func (s SID) String() string {
 	return fmt.Sprintf("%q by %s (c) %s (%s-%s)", s.Name(), s.Author(), s.Released(), s.LoadAddress(), s.LoadAddress()+Word(len(s.RawBytes())))
 }
 
@@ -166,14 +167,15 @@ func (w LongWord) String() string {
 	return fmt.Sprintf("0x%08x", uint32(w))
 }
 
-func (s *SID) headerMarkerOK() error {
-	if s.bin[0] != 'P' && s.bin[0] != 'R' {
-		return fmt.Errorf("incorrect PSID/RSID header marker: first byte incorrect: %q", string(s.bin[0:3]))
+// headerMarkerOK returns an error if the header of s does not match.
+func (s SID) headerMarkerOK() error {
+	if s[0] != 'P' && s[0] != 'R' {
+		return fmt.Errorf("incorrect PSID/RSID header marker: first byte incorrect: %q", string(s[0:3]))
 	}
 	const postfix = "SID"
 	for i, c := range postfix {
-		if s.bin[i+1] != byte(c) {
-			return fmt.Errorf("incorrect PSID/RSID header marker: %q", string(s.bin[0:3]))
+		if s[i+1] != byte(c) {
+			return fmt.Errorf("incorrect PSID/RSID header marker: %q", string(s[0:3]))
 		}
 	}
 	return nil
