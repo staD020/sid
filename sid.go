@@ -111,6 +111,14 @@ func (s SID) Speed50Herz() bool {
 	return s.Speed()&1 == 0
 }
 
+func makeRunes(bytes []byte) string {
+	buf := make([]rune, len(bytes))
+	for i, b := range bytes {
+		buf[i] = rune(b)
+	}
+	return string(buf)
+}
+
 func chopString(in string) (out string) {
 	for _, c := range in {
 		if byte(c) == 0 {
@@ -122,15 +130,15 @@ func chopString(in string) (out string) {
 }
 
 func (s SID) Name() string {
-	return chopString(string(s[0x16:0x35]))
+	return chopString(makeRunes(s[0x16:0x35]))
 }
 
 func (s SID) Author() string {
-	return chopString(string(s[0x36:0x55]))
+	return chopString(makeRunes(s[0x36:0x55]))
 }
 
 func (s SID) Released() string {
-	return chopString(string(s[0x56:0x75]))
+	return chopString(makeRunes(s[0x56:0x75]))
 }
 
 func (s SID) String() string {
