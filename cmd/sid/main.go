@@ -9,7 +9,7 @@ import (
 	"github.com/staD020/sid"
 )
 
-const Version = 0.1
+const Version = 0.2
 
 func main() {
 	flag.Parse()
