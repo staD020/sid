@@ -1,4 +1,6 @@
 // Package sid contains a pure-go implementation of the Commodore 64's .sid music format.
+//
+// The .sid file format is documented here: https://www.hvsc.c64.org/download/C64Music/DOCUMENTS/SID_file_format.txt
 package sid
 
 import (
@@ -111,6 +113,14 @@ func (s SID) Speed50Herz() bool {
 	return s.Speed()&1 == 0
 }
 
+func (s SID) Flags() Word {
+	return bytesToWord(s[0x76], s[0x77])
+}
+
+func (s SID) NTSC() bool {
+	return s.Flags()&0b1100 == 0b1000
+}
+
 func makeRunes(bytes []byte) string {
 	buf := make([]rune, len(bytes))
 	for i, b := range bytes {
@@ -142,7 +152,11 @@ func (s SID) Released() string {
 }
 
 func (s SID) String() string {
-	return fmt.Sprintf("%q by %s (c) %s (%s-%s)", s.Name(), s.Author(), s.Released(), s.LoadAddress(), s.LoadAddress()+Word(len(s.RawBytes())))
+	clock := "pal"
+	if s.NTSC() {
+		clock = "ntsc"
+	}
+	return fmt.Sprintf("%q by %s (c) %s (%s-%s) %s", s.Name(), s.Author(), s.Released(), s.LoadAddress(), s.LoadAddress()+Word(len(s.RawBytes())), clock)
 }
 
 func (v Version) String() string {
