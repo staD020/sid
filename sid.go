@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
 type (
@@ -121,6 +122,14 @@ func (s SID) NTSC() bool {
 	return s.Flags()&0b1100 == 0b1000
 }
 
+func (s SID) OldSID() bool {
+	return s.Flags()&0b010000 == 0b010000
+}
+
+func (s SID) NewSID() bool {
+	return s.Flags()&0b100000 == 0b100000
+}
+
 func makeRunes(bytes []byte) string {
 	buf := make([]rune, len(bytes))
 	for i, b := range bytes {
@@ -156,7 +165,14 @@ func (s SID) String() string {
 	if s.NTSC() {
 		clock = "ntsc"
 	}
-	return fmt.Sprintf("%q by %s (c) %s (%s-%s) %s", s.Name(), s.Author(), s.Released(), s.LoadAddress(), s.LoadAddress()+Word(len(s.RawBytes())), clock)
+	var sids []string
+	if s.OldSID() {
+		sids = append(sids, "6581")
+	}
+	if s.NewSID() {
+		sids = append(sids, "8580")
+	}
+	return fmt.Sprintf("%q by %s (c) %s (%s-%s) %s %s", s.Name(), s.Author(), s.Released(), s.LoadAddress(), s.LoadAddress()+Word(len(s.RawBytes())), clock, strings.Join(sids, ","))
 }
 
 func (v Version) String() string {

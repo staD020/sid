@@ -59,7 +59,7 @@ func TestLoadSID(t *testing.T) {
 				"LoadAddress": "0x1000",
 				"InitAddress": "0x1000",
 				"PlayAddress": "0x1009",
-				"String":      `"Rivalry (tune 5)" by Thomas E. Petersen (Laxity) (c) 2019 Seniors (0x1000-0x1fec) pal`,
+				"String":      `"Rivalry (tune 5)" by Thomas E. Petersen (Laxity) (c) 2019 Seniors (0x1000-0x1fec) pal 8580`,
 				"Songs":       "0x0001",
 				"StartSong":   "0x0001",
 			},
@@ -89,7 +89,7 @@ func TestSpeed50Herz(t *testing.T) {
 	}
 }
 
-func TestNTSC(t *testing.T) {
+func TestFlags(t *testing.T) {
 	t.Parallel()
 	s, err := LoadSID(testSID)
 	if err != nil {
@@ -100,6 +100,17 @@ func TestNTSC(t *testing.T) {
 	if got != want {
 		t.Errorf("s.NTSC() mismatch got: %v want: %v", got, want)
 	}
+	got = s.OldSID()
+	want = false
+	if got != want {
+		t.Errorf("s.OldSID() mismatch got: %v want: %v", got, want)
+	}
+	got = s.NewSID()
+	want = true
+	if got != want {
+		t.Errorf("s.NewSID() mismatch got: %v want: %v", got, want)
+	}
+
 	s, err = LoadSID(testNTSCSID)
 	if err != nil {
 		t.Fatalf("LoadSID %q error: %v", testSID, err)
@@ -108,6 +119,16 @@ func TestNTSC(t *testing.T) {
 	want = true
 	if got != want {
 		t.Errorf("s.NTSC() mismatch got: %v want: %v", got, want)
+	}
+	got = s.OldSID()
+	want = true
+	if got != want {
+		t.Errorf("s.OldSID() mismatch got: %v want: %v", got, want)
+	}
+	got = s.NewSID()
+	want = false
+	if got != want {
+		t.Errorf("s.NewSID() mismatch got: %v want: %v", got, want)
 	}
 }
 
